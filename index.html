@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4b4c47">
+<title>Diagnóstico Spice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --laranja: #fb7c4f;
+    --rosa: #fd3a92;
+    --off-white: #f6f2e6;
+    --cinza: #4b4c47;
+    --cinza-claro: #7a7b76;
+    --verde: #2dce89;
+    --vermelho: #e53e3e;
+    --bg: #f0ece0;
+    --gradiente: linear-gradient(135deg, var(--rosa) 0%, var(--laranja) 100%);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--cinza);
+    min-height: 100vh;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 0 16px 48px; }
+  header.top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 0;
+  }
+  .logo { font-family: 'Anton', sans-serif; font-size: 26px; letter-spacing: 1px; color: var(--cinza); }
+  .logo span { background: var(--gradiente); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .badge-equipe { font-size: 11px; font-weight: 600; background: var(--cinza); color: var(--off-white); padding: 4px 10px; border-radius: 99px; }
+
+  .hero {
+    background: var(--cinza); color: var(--off-white);
+    border-radius: 20px; padding: 28px 22px; position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content: ''; position: absolute; right: -90px; top: -100px; width: 170px; height: 170px;
+    background: var(--gradiente); transform: rotate(25deg); border-radius: 32px; opacity: .9;
+  }
+  .hero h1 { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 34px; line-height: 1.05; position: relative; z-index: 1; max-width: 85%; }
+  .hero p { margin-top: 12px; font-size: 14px; opacity: .85; position: relative; z-index: 1; }
+  .hero .tempo { display: inline-block; margin-top: 14px; font-size: 12px; font-weight: 600; background: rgba(246,242,230,.12); padding: 6px 12px; border-radius: 99px; position: relative; z-index: 1; }
+
+  .card { background: #fff; border-radius: 16px; padding: 22px 18px; margin-top: 16px; border: 1px solid rgba(75,76,71,.08); }
+  .step-label { font-size: 12px; font-weight: 600; color: var(--rosa); text-transform: uppercase; letter-spacing: 1px; }
+  .card h2 { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 24px; margin: 4px 0 16px; }
+
+  label.field { display: block; margin-bottom: 14px; }
+  label.field > span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  label.field > span em { font-style: normal; color: var(--cinza-claro); font-weight: 400; }
+  input[type=text], input[type=tel] {
+    width: 100%; font: inherit; font-size: 16px; color: var(--cinza);
+    padding: 12px 14px; border-radius: 10px; border: 1.5px solid rgba(75,76,71,.18); background: var(--off-white);
+    outline: none; transition: border-color .2s;
+  }
+  input:focus { border-color: var(--rosa); }
+  .prefix { position: relative; }
+  .prefix::before { content: '@'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--cinza-claro); font-size: 16px; }
+  .prefix input { padding-left: 32px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font: inherit; font-size: 13px; font-weight: 500; color: var(--cinza);
+    padding: 8px 14px; border-radius: 99px; border: 1.5px solid rgba(75,76,71,.18); background: #fff; cursor: pointer;
+  }
+  .chip.on { background: var(--cinza); color: var(--off-white); border-color: var(--cinza); }
+  .group { margin-bottom: 18px; }
+  .group > span { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .group > span em { font-style: normal; color: var(--cinza-claro); font-weight: 400; }
+
+  .consent { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; color: var(--cinza-claro); margin: 6px 0 18px; }
+  .consent input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--rosa); flex-shrink: 0; }
+
+  .btn {
+    display: block; width: 100%; font: inherit; font-size: 16px; font-weight: 700; text-align: center; text-decoration: none;
+    padding: 16px; border: none; border-radius: 12px; cursor: pointer; color: #fff; background: var(--gradiente);
+  }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn.sec { background: transparent; color: var(--cinza); border: 1.5px solid rgba(75,76,71,.25); margin-top: 10px; }
+  .erro { color: var(--vermelho); font-size: 13px; font-weight: 500; margin-bottom: 12px; display: none; }
+  .erro.on { display: block; }
+
+  .slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .slot {
+    position: relative; aspect-ratio: 9/16; border-radius: 12px; border: 2px dashed rgba(75,76,71,.25);
+    background: var(--off-white); display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 8px; cursor: pointer; overflow: hidden;
+  }
+  .slot.filled { border-style: solid; border-color: var(--rosa); }
+  .slot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .slot .plus { font-size: 28px; color: var(--rosa); line-height: 1; }
+  .slot .txt { font-size: 11px; font-weight: 600; margin-top: 6px; line-height: 1.3; }
+  .slot .opt { font-size: 10px; color: var(--cinza-claro); }
+  .slot .rm {
+    position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 50%; border: none;
+    background: rgba(0,0,0,.6); color: #fff; font-size: 16px; line-height: 26px; cursor: pointer; z-index: 2;
+  }
+  .slot input { display: none; }
+  .dica { font-size: 12px; color: var(--cinza-claro); background: var(--off-white); border-radius: 10px; padding: 10px 12px; margin-bottom: 16px; }
+
+  .loading { text-align: center; padding: 48px 18px; }
+  .spinner {
+    width: 64px; height: 64px; margin: 0 auto 22px; border-radius: 50%;
+    border: 5px solid rgba(253,58,146,.15); border-top-color: var(--rosa); border-right-color: var(--laranja);
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading h2 { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 26px; }
+  .loading p { margin-top: 8px; font-size: 14px; color: var(--cinza-claro); min-height: 22px; transition: opacity .3s; }
+
+  .score-hero { background: var(--cinza); color: var(--off-white); border-radius: 20px; padding: 26px 20px; text-align: center; position: relative; overflow: hidden; }
+  .score-hero .nome { font-size: 13px; opacity: .75; }
+  .score-hero .handle { font-weight: 700; font-size: 16px; }
+  .ring { width: 150px; height: 150px; margin: 18px auto 12px; position: relative; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring .val { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring .num { font-family: 'Anton', sans-serif; font-size: 52px; line-height: 1; }
+  .ring .de { font-size: 12px; opacity: .7; }
+  .score-hero .nivel { display: inline-block; font-size: 12px; font-weight: 700; padding: 5px 14px; border-radius: 99px; background: var(--gradiente); }
+  .score-hero .resumo { margin-top: 14px; font-size: 15px; line-height: 1.5; }
+  .score-hero .stats { margin-top: 14px; font-size: 12px; opacity: .7; }
+
+  .sec-title { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 22px; margin: 26px 0 10px; }
+  .pilar { margin-bottom: 16px; }
+  .pilar:last-child { margin-bottom: 0; }
+  .pilar-top { display: flex; justify-content: space-between; align-items: baseline; font-weight: 600; font-size: 14px; }
+  .pilar-top b { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 20px; }
+  .bar { height: 8px; background: var(--off-white); border-radius: 99px; overflow: hidden; margin: 6px 0; }
+  .bar i { display: block; height: 100%; width: 0; border-radius: 99px; transition: width 1.2s cubic-bezier(.2,.8,.2,1); }
+  .pilar p { font-size: 13px; color: var(--cinza-claro); line-height: 1.45; }
+
+  .insight { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid rgba(75,76,71,.08); }
+  .insight:last-child { border-bottom: none; padding-bottom: 0; }
+  .insight:first-child { padding-top: 0; }
+  .insight .n { font-family: 'Anton', sans-serif; font-size: 28px; color: var(--rosa); opacity: .5; line-height: 1; min-width: 26px; }
+  .insight h3, .melhoria h3 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .insight p, .melhoria p { font-size: 13px; line-height: 1.5; color: var(--cinza); }
+
+  .melhoria { border-left: 4px solid var(--laranja); padding: 4px 0 4px 14px; margin-bottom: 16px; }
+  .melhoria:last-child { margin-bottom: 0; }
+  .melhoria.alto { border-left-color: var(--rosa); }
+  .tag { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: 2px 8px; border-radius: 99px; margin-bottom: 6px; background: rgba(251,124,79,.12); color: var(--laranja); }
+  .melhoria.alto .tag { background: rgba(253,58,146,.1); color: var(--rosa); }
+
+  .cta { background: var(--gradiente); color: #fff; border-radius: 20px; padding: 26px 20px; margin-top: 22px; text-align: center; }
+  .cta h2 { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 26px; line-height: 1.1; }
+  .cta p { font-size: 14px; margin: 10px 0 18px; opacity: .95; }
+  .cta .btn { background: #fff; color: var(--rosa); }
+  .cta .ok { font-weight: 600; font-size: 14px; display: none; margin-top: 12px; }
+
+  .hidden { display: none !important; }
+  footer { text-align: center; font-size: 11px; color: var(--cinza-claro); margin-top: 28px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">SPICE<span>.</span></div>
+    <div class="badge-equipe hidden" id="badgeEquipe">Modo equipe</div>
+  </header>
+
+  <!-- PASSO 1: DADOS -->
+  <section id="passo1">
+    <div class="hero">
+      <h1>Seu Instagram está vendendo ou só existindo?</h1>
+      <p>Diagnóstico gratuito do perfil do seu restaurante: nota, 3 insights e o que melhorar primeiro.</p>
+      <span class="tempo">Leva cerca de 1 minuto</span>
+    </div>
+
+    <form class="card" id="formDados" novalidate>
+      <div class="step-label">Passo 1 de 2</div>
+      <h2>Sobre o seu negócio</h2>
+
+      <label class="field"><span>Seu nome</span><input type="text" name="nome" autocomplete="name" required></label>
+      <label class="field"><span>Nome do restaurante</span><input type="text" name="restaurante" required></label>
+      <label class="field"><span>Instagram do restaurante</span>
+        <div class="prefix"><input type="text" name="instagram" autocapitalize="off" autocorrect="off" spellcheck="false" required></div>
+      </label>
+      <label class="field"><span>WhatsApp</span><input type="tel" name="whatsapp" autocomplete="tel" placeholder="(11) 99999-9999" required></label>
+      <label class="field"><span>Cidade <em>(opcional)</em></span><input type="text" name="cidade"></label>
+
+      <div class="group">
+        <span>Tipo de negócio</span>
+        <div class="chips" data-name="tipo" data-single>
+          <button type="button" class="chip">Restaurante</button>
+          <button type="button" class="chip">Hamburgueria</button>
+          <button type="button" class="chip">Pizzaria</button>
+          <button type="button" class="chip">Bar / Gastrobar</button>
+          <button type="button" class="chip">Cafeteria</button>
+          <button type="button" class="chip">Confeitaria</button>
+          <button type="button" class="chip">Japonês</button>
+          <button type="button" class="chip">Só delivery</button>
+          <button type="button" class="chip">Outro</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <span>Onde você vende <em>(pode marcar vários)</em></span>
+        <div class="chips" data-name="canais">
+          <button type="button" class="chip">Salão</button>
+          <button type="button" class="chip">iFood / apps</button>
+          <button type="button" class="chip">Delivery próprio</button>
+          <button type="button" class="chip">Encomendas</button>
+          <button type="button" class="chip">Eventos</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <span>Maior desafio hoje</span>
+        <div class="chips" data-name="desafio" data-single>
+          <button type="button" class="chip">Atrair clientes novos</button>
+          <button type="button" class="chip">Fazer o cliente voltar</button>
+          <button type="button" class="chip">Movimentar dias fracos</button>
+          <button type="button" class="chip">Vender mais no delivery</button>
+          <button type="button" class="chip">Falta tempo para postar</button>
+        </div>
+      </div>
+
+      <div class="hidden" id="camposEquipe">
+        <label class="field"><span>Quem abordou <em>(equipe Spice)</em></span><input type="text" name="responsavel"></label>
+      </div>
+
+      <label class="consent">
+        <input type="checkbox" name="consentimento">
+        <span>Aceito que a Spice Marketing use esses dados para enviar meu diagnóstico e entrar em contato comigo.</span>
+      </label>
+
+      <div class="erro" id="erro1"></div>
+      <button type="submit" class="btn">Continuar</button>
+    </form>
+  </section>
+
+  <!-- PASSO 2: PRINTS -->
+  <section id="passo2" class="hidden">
+    <div class="card">
+      <div class="step-label">Passo 2 de 2</div>
+      <h2>Prints do perfil</h2>
+      <div class="dica">Abra o Instagram do restaurante e tire os prints. Quanto mais da grade aparecer, melhor a análise.</div>
+      <div class="slots" id="slots"></div>
+      <div class="erro" id="erro2"></div>
+      <button type="button" class="btn" id="btnAnalisar" disabled>Gerar meu diagnóstico</button>
+      <button type="button" class="btn sec" id="btnVoltar">Voltar</button>
+    </div>
+  </section>
+
+  <!-- CARREGANDO -->
+  <section id="carregando" class="hidden">
+    <div class="card loading">
+      <div class="spinner"></div>
+      <h2>Analisando o perfil</h2>
+      <p id="msgLoading">Lendo a bio...</p>
+    </div>
+  </section>
+
+  <!-- RESULTADO -->
+  <section id="resultado" class="hidden">
+    <div class="score-hero">
+      <div class="nome" id="rNome"></div>
+      <div class="handle" id="rHandle"></div>
+      <div class="ring">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fd3a92"/><stop offset="1" stop-color="#fb7c4f"/></linearGradient></defs>
+          <circle cx="75" cy="75" r="64" fill="none" stroke="rgba(246,242,230,.12)" stroke-width="12"/>
+          <circle id="ringArc" cx="75" cy="75" r="64" fill="none" stroke="url(#g)" stroke-width="12" stroke-linecap="round"
+                  stroke-dasharray="402.1" stroke-dashoffset="402.1" style="transition: stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1)"/>
+        </svg>
+        <div class="val"><div class="num" id="rNota">0</div><div class="de">de 10</div></div>
+      </div>
+      <div class="nivel" id="rNivel"></div>
+      <div class="resumo" id="rResumo"></div>
+      <div class="stats" id="rStats"></div>
+    </div>
+
+    <h2 class="sec-title">Nota por pilar</h2>
+    <div class="card" style="margin-top:0" id="rPilares"></div>
+
+    <h2 class="sec-title">3 insights do seu perfil</h2>
+    <div class="card" style="margin-top:0" id="rInsights"></div>
+
+    <h2 class="sec-title">O que pode melhorar</h2>
+    <div class="card" style="margin-top:0" id="rMelhorias"></div>
+
+    <div class="cta">
+      <h2 id="ctaTitulo">Quer transformar isso em resultado?</h2>
+      <p>Numa conversa de 30 minutos, a Spice monta com você o plano para colocar essas melhorias em prática, com calendário sazonal e foco em venda.</p>
+      <button type="button" class="btn" id="btnConversar">Quero conversar com a Spice</button>
+      <div class="ok" id="ctaOk">Recebemos! A gente te chama no WhatsApp.</div>
+    </div>
+
+    <button type="button" class="btn sec hidden" id="btnNovo" style="margin-top:16px">Novo diagnóstico</button>
+  </section>
+
+  <footer>Spice Marketing · Marketing para food service</footer>
+</div>
+
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const modoEquipe = params.get('equipe') === '1';
+  const evento = params.get('evento') || '';
+
+  const $ = (id) => document.getElementById(id);
+  const show = (id) => {
+    ['passo1', 'passo2', 'carregando', 'resultado'].forEach((s) => $(s).classList.toggle('hidden', s !== id));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  if (modoEquipe) {
+    $('badgeEquipe').classList.remove('hidden');
+    $('camposEquipe').classList.remove('hidden');
+    $('btnNovo').classList.remove('hidden');
+    try {
+      const resp = localStorage.getItem('spice-responsavel');
+      if (resp) document.querySelector('[name=responsavel]').value = resp;
+    } catch (e) {}
+  }
+
+  // Chips (seleção única ou múltipla)
+  document.querySelectorAll('.chips').forEach((group) => {
+    group.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      if (group.hasAttribute('data-single')) {
+        const wasOn = chip.classList.contains('on');
+        group.querySelectorAll('.chip').forEach((c) => c.classList.remove('on'));
+        if (!wasOn) chip.classList.add('on');
+      } else {
+        chip.classList.toggle('on');
+      }
+    });
+  });
+  const chipValues = (name) => [...document.querySelectorAll(`.chips[data-name="${name}"] .chip.on`)].map((c) => c.textContent.trim());
+
+  // Passo 1
+  let dados = null;
+  $('formDados').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const v = (n) => (f.elements[n]?.value || '').trim();
+    const erro = $('erro1');
+    const faltando = [['nome', 'seu nome'], ['restaurante', 'o nome do restaurante'], ['instagram', 'o Instagram'], ['whatsapp', 'o WhatsApp']]
+      .filter(([n]) => !v(n)).map(([, l]) => l);
+    if (faltando.length) { erro.textContent = 'Falta preencher ' + faltando.join(', ') + '.'; erro.classList.add('on'); return; }
+    if (v('whatsapp').replace(/\D/g, '').length < 10) { erro.textContent = 'Confira o WhatsApp com DDD.'; erro.classList.add('on'); return; }
+    if (!f.elements.consentimento.checked) { erro.textContent = 'Marque a autorização de contato para continuar.'; erro.classList.add('on'); return; }
+    erro.classList.remove('on');
+
+    if (modoEquipe && v('responsavel')) {
+      try { localStorage.setItem('spice-responsavel', v('responsavel')); } catch (e) {}
+    }
+
+    dados = {
+      nome: v('nome'), restaurante: v('restaurante'), instagram: v('instagram').replace(/^@+/, ''),
+      whatsapp: v('whatsapp'), cidade: v('cidade'),
+      tipo: chipValues('tipo')[0] || '', canais: chipValues('canais'), desafio: chipValues('desafio')[0] || '',
+      responsavel: v('responsavel'), evento, origem: modoEquipe ? 'equipe' : 'qrcode', consentimento: true
+    };
+    show('passo2');
+  });
+
+  // Passo 2: prints
+  const SLOTS = [
+    { txt: 'Topo do perfil', opt: 'bio e destaques' },
+    { txt: 'Grade de posts', opt: 'role um pouco' },
+    { txt: 'Mais posts', opt: 'opcional' }
+  ];
+  const imagens = new Array(SLOTS.length).fill(null);
+
+  function compress(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const max = 1400;
+        const scale = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * scale);
+        c.height = Math.round(img.height * scale);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Imagem inválida')); };
+      img.src = url;
+    });
+  }
+
+  function renderSlots() {
+    $('slots').innerHTML = '';
+    SLOTS.forEach((s, i) => {
+      const el = document.createElement('label');
+      el.className = 'slot' + (imagens[i] ? ' filled' : '');
+      if (imagens[i]) {
+        el.innerHTML = `<img alt=""><button type="button" class="rm" aria-label="Remover">&times;</button>`;
+        el.querySelector('img').src = imagens[i];
+        el.querySelector('.rm').addEventListener('click', (e) => { e.preventDefault(); imagens[i] = null; renderSlots(); });
+      } else {
+        el.innerHTML = `<div class="plus">+</div><div class="txt"></div><div class="opt"></div><input type="file" accept="image/*">`;
+        el.querySelector('.txt').textContent = s.txt;
+        el.querySelector('.opt').textContent = s.opt;
+        el.querySelector('input').addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          try { imagens[i] = await compress(file); renderSlots(); }
+          catch (err) { const er = $('erro2'); er.textContent = 'Não conseguimos abrir essa imagem. Tente outra.'; er.classList.add('on'); }
+        });
+      }
+      $('slots').appendChild(el);
+    });
+    $('btnAnalisar').disabled = !imagens.some(Boolean);
+  }
+  renderSlots();
+
+  $('btnVoltar').addEventListener('click', () => show('passo1'));
+
+  const MSGS = ['Lendo a bio...', 'Olhando os destaques...', 'Avaliando a grade de posts...', 'Analisando o contexto do negócio...', 'Comparando com boas práticas de food service...', 'Montando seus insights...'];
+  let loadingTimer = null;
+  function startLoading() {
+    let i = 0;
+    $('msgLoading').textContent = MSGS[0];
+    loadingTimer = setInterval(() => { i = Math.min(i + 1, MSGS.length - 1); $('msgLoading').textContent = MSGS[i]; }, 4500);
+  }
+
+  let leadId = null;
+  let whatsappSpice = '';
+
+  $('btnAnalisar').addEventListener('click', async () => {
+    const erro = $('erro2');
+    erro.classList.remove('on');
+    show('carregando');
+    startLoading();
+    try {
+      const r = await fetch('/api/diagnostico', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...dados, imagens: imagens.filter(Boolean) })
+      });
+      const json = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(json.error || 'Algo deu errado. Tente de novo.');
+      leadId = json.id;
+      whatsappSpice = json.whatsapp_spice || '';
+      renderResultado(json.diagnostico);
+      show('resultado');
+      requestAnimationFrame(() => setTimeout(animar, 150));
+    } catch (err) {
+      erro.textContent = err.message;
+      erro.classList.add('on');
+      show('passo2');
+    } finally {
+      clearInterval(loadingTimer);
+    }
+  });
+
+  const PILARES = [['bio', 'Bio'], ['destaques', 'Destaques'], ['conteudo', 'Conteúdo'], ['contexto_negocio', 'Contexto do negócio']];
+  const corNota = (n) => n >= 7 ? 'var(--verde)' : n >= 4 ? 'var(--laranja)' : 'var(--vermelho)';
+  const nivel = (n) => n >= 8 ? 'Perfil forte' : n >= 6.5 ? 'Bom, com espaço para crescer' : n >= 4.5 ? 'Alto potencial de melhoria' : 'Precisa de atenção urgente';
+  const fmt = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+  let notaAlvo = 0;
+  function renderResultado(d) {
+    notaAlvo = d.nota_geral;
+    $('rNome').textContent = dados.restaurante;
+    $('rHandle').textContent = '@' + dados.instagram;
+    $('rNivel').textContent = nivel(d.nota_geral);
+    $('rResumo').textContent = d.resumo;
+    const st = [d.dados_perfil?.seguidores && d.dados_perfil.seguidores + ' seguidores', d.dados_perfil?.posts && d.dados_perfil.posts + ' posts'].filter(Boolean);
+    $('rStats').textContent = st.join(' · ');
+
+    const pil = $('rPilares'); pil.innerHTML = '';
+    PILARES.forEach(([k, label]) => {
+      const p = d.pilares[k]; if (!p) return;
+      const el = document.createElement('div');
+      el.className = 'pilar';
+      el.innerHTML = `<div class="pilar-top"><span></span><b></b></div><div class="bar"><i></i></div><p></p>`;
+      el.querySelector('span').textContent = label;
+      el.querySelector('b').textContent = p.nota + '/10';
+      el.querySelector('b').style.color = corNota(p.nota);
+      el.querySelector('i').style.background = corNota(p.nota);
+      el.querySelector('i').dataset.w = (p.nota * 10) + '%';
+      el.querySelector('p').textContent = p.comentario;
+      pil.appendChild(el);
+    });
+
+    const ins = $('rInsights'); ins.innerHTML = '';
+    d.insights.forEach((it, i) => {
+      const el = document.createElement('div');
+      el.className = 'insight';
+      el.innerHTML = `<div class="n">${i + 1}</div><div><h3></h3><p></p></div>`;
+      el.querySelector('h3').textContent = it.titulo;
+      el.querySelector('p').textContent = it.texto;
+      ins.appendChild(el);
+    });
+
+    const mel = $('rMelhorias'); mel.innerHTML = '';
+    d.melhorias.forEach((m) => {
+      const el = document.createElement('div');
+      el.className = 'melhoria' + (m.impacto === 'alto' ? ' alto' : '');
+      el.innerHTML = `<span class="tag"></span><h3></h3><p></p>`;
+      el.querySelector('.tag').textContent = m.impacto === 'alto' ? 'Impacto alto' : 'Impacto médio';
+      el.querySelector('h3').textContent = m.titulo;
+      el.querySelector('p').textContent = m.texto;
+      mel.appendChild(el);
+    });
+
+    $('ctaTitulo').textContent = `${dados.nome.split(' ')[0]}, quer levar o ${dados.restaurante} para o próximo nível?`;
+    $('btnConversar').classList.remove('hidden');
+    $('ctaOk').style.display = 'none';
+  }
+
+  function animar() {
+    $('ringArc').style.strokeDashoffset = 402.1 * (1 - notaAlvo / 10);
+    document.querySelectorAll('#rPilares .bar i').forEach((i) => { i.style.width = i.dataset.w; });
+    const t0 = performance.now();
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / 1300);
+      $('rNota').textContent = fmt(notaAlvo * (1 - Math.pow(1 - k, 3)));
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  $('btnConversar').addEventListener('click', () => {
+    if (leadId) {
+      fetch('/api/leads', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ acao: 'quer_conversar', id: leadId })
+      }).catch(() => {});
+    }
+    $('btnConversar').classList.add('hidden');
+    $('ctaOk').style.display = 'block';
+    if (whatsappSpice && !modoEquipe) {
+      const msg = `Oi! Fiz o diagnóstico do Instagram do ${dados.restaurante} (@${dados.instagram}) e tirei nota ${fmt(notaAlvo)}. Quero conversar sobre como melhorar.`;
+      window.open(`https://wa.me/${whatsappSpice}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+  });
+
+  $('btnNovo').addEventListener('click', () => {
+    const resp = document.querySelector('[name=responsavel]').value;
+    $('formDados').reset();
+    document.querySelector('[name=responsavel]').value = resp;
+    document.querySelectorAll('.chip.on').forEach((c) => c.classList.remove('on'));
+    imagens.fill(null);
+    renderSlots();
+    dados = null; leadId = null;
+    $('ringArc').style.strokeDashoffset = 402.1;
+    show('passo1');
+  });
+})();
+</script>
+</body>
+</html>

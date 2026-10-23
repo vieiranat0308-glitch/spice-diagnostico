@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Leads Spice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --laranja: #fb7c4f; --rosa: #fd3a92; --off-white: #f6f2e6; --cinza: #4b4c47; --cinza-claro: #7a7b76;
+    --verde: #2dce89; --vermelho: #e53e3e; --bg: #f0ece0;
+    --gradiente: linear-gradient(135deg, var(--rosa) 0%, var(--laranja) 100%);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--cinza); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px 48px; }
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 0; flex-wrap: wrap; }
+  .logo { font-family: 'Anton', sans-serif; font-size: 24px; letter-spacing: 1px; }
+  .logo span { background: var(--gradiente); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .logo small { font-family: 'Poppins'; font-size: 13px; font-weight: 600; color: var(--cinza-claro); letter-spacing: 0; margin-left: 8px; }
+  button, select, input, textarea { font: inherit; color: inherit; }
+  .btn { border: none; border-radius: 10px; padding: 10px 16px; font-weight: 600; font-size: 14px; cursor: pointer; background: var(--cinza); color: var(--off-white); }
+  .btn.grad { background: var(--gradiente); color: #fff; }
+  .btn.ghost { background: transparent; border: 1.5px solid rgba(75,76,71,.25); color: var(--cinza); }
+
+  .login { max-width: 360px; margin: 18vh auto 0; background: #fff; border-radius: 16px; padding: 28px 22px; text-align: center; }
+  .login h1 { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 28px; margin-bottom: 16px; }
+  .login input { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid rgba(75,76,71,.18); background: var(--off-white); font-size: 16px; margin-bottom: 12px; }
+  .login .btn { width: 100%; padding: 14px; }
+  .erro { color: var(--vermelho); font-size: 13px; margin-bottom: 10px; min-height: 18px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: #fff; border-radius: 14px; padding: 16px; border: 1px solid rgba(75,76,71,.08); }
+  .kpi b { display: block; font-family: 'Anton', sans-serif; font-weight: 400; font-size: 32px; line-height: 1.1; }
+  .kpi span { font-size: 12px; color: var(--cinza-claro); font-weight: 500; }
+  .kpi.hot b { color: var(--rosa); }
+
+  .filtros { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .filtros input, .filtros select { padding: 10px 12px; border-radius: 10px; border: 1.5px solid rgba(75,76,71,.18); background: #fff; font-size: 14px; }
+  .filtros input { flex: 1; min-width: 180px; }
+
+  .lista { display: flex; flex-direction: column; gap: 10px; }
+  .lead { background: #fff; border-radius: 14px; border: 1px solid rgba(75,76,71,.08); overflow: hidden; }
+  .lead-head { display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; cursor: pointer; }
+  .nota { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Anton', sans-serif; font-size: 22px; color: #fff; }
+  .lead-info { min-width: 0; }
+  .lead-info h3 { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lead-info p { font-size: 12px; color: var(--cinza-claro); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; padding: 2px 8px; border-radius: 99px; background: var(--off-white); color: var(--cinza); }
+  .tag.quente { background: rgba(253,58,146,.12); color: var(--rosa); }
+  .tag.morno { background: rgba(251,124,79,.14); color: var(--laranja); }
+  .tag.frio { background: rgba(75,76,71,.1); color: var(--cinza-claro); }
+  .tag.quer { background: var(--gradiente); color: #fff; }
+  .lead-side { text-align: right; font-size: 12px; color: var(--cinza-claro); }
+  .lead-side select { margin-top: 6px; padding: 6px 8px; border-radius: 8px; border: 1.5px solid rgba(75,76,71,.18); background: #fff; font-size: 13px; font-weight: 600; }
+
+  .lead-body { display: none; border-top: 1px solid rgba(75,76,71,.08); padding: 16px; background: #fdfcf8; }
+  .lead.open .lead-body { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .lead-body h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: var(--rosa); margin: 0 0 8px; }
+  .lead-body h4:not(:first-child) { margin-top: 16px; }
+  .lead-body ul { list-style: none; }
+  .lead-body li { font-size: 13px; line-height: 1.5; margin-bottom: 8px; }
+  .lead-body li b { font-weight: 600; }
+  .contato a { color: var(--rosa); font-weight: 600; text-decoration: none; }
+  .gancho { background: var(--cinza); color: var(--off-white); border-radius: 12px; padding: 14px; font-size: 13px; line-height: 1.5; }
+  .gancho h4 { color: var(--laranja) !important; }
+  textarea { width: 100%; min-height: 80px; border-radius: 10px; border: 1.5px solid rgba(75,76,71,.18); padding: 10px; font-size: 13px; background: #fff; resize: vertical; }
+  .vazio { text-align: center; padding: 60px 16px; color: var(--cinza-claro); background: #fff; border-radius: 14px; }
+  .hidden { display: none !important; }
+
+  @media (max-width: 720px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .lead-head { grid-template-columns: 48px 1fr; }
+    .nota { width: 48px; height: 48px; font-size: 18px; }
+    .lead-side { grid-column: 1 / -1; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+    .lead-side select { margin-top: 0; }
+    .lead.open .lead-body { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="login" id="login">
+    <h1>Painel de leads</h1>
+    <div class="erro" id="loginErro"></div>
+    <input type="password" id="senha" placeholder="Senha do painel" autocomplete="current-password">
+    <button class="btn grad" id="btnEntrar">Entrar</button>
+  </div>
+
+  <div id="app" class="hidden">
+    <header class="top">
+      <div class="logo">SPICE<span>.</span><small>Leads de eventos</small></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost" id="btnAtualizar">Atualizar</button>
+        <button class="btn" id="btnCsv">Exportar planilha</button>
+      </div>
+    </header>
+
+    <div class="kpis">
+      <div class="kpi"><b id="kTotal">0</b><span>diagnósticos</span></div>
+      <div class="kpi hot"><b id="kQuer">0</b><span>pediram conversa</span></div>
+      <div class="kpi"><b id="kQuente">0</b><span>leads quentes</span></div>
+      <div class="kpi"><b id="kMedia">0</b><span>nota média</span></div>
+    </div>
+
+    <div class="filtros">
+      <input type="search" id="busca" placeholder="Buscar nome, restaurante ou @">
+      <select id="fEvento"><option value="">Todos os eventos</option></select>
+      <select id="fTemp">
+        <option value="">Toda temperatura</option>
+        <option value="quer">Pediram conversa</option>
+        <option value="quente">Quentes</option>
+        <option value="morno">Mornos</option>
+        <option value="frio">Frios</option>
+      </select>
+      <select id="fStatus"><option value="">Todo status</option></select>
+    </div>
+
+    <div class="lista" id="lista"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const STATUS = { novo: 'Novo', contatado: 'Contatado', call_agendada: 'Call agendada', proposta: 'Proposta enviada', fechado: 'Fechado', perdido: 'Perdido' };
+  const PILARES = { bio: 'Bio', destaques: 'Destaques', conteudo: 'Conteúdo', contexto_negocio: 'Contexto do negócio' };
+  const $ = (id) => document.getElementById(id);
+  let senha = '';
+  let leads = [];
+  const abertos = new Set();
+
+  try { senha = sessionStorage.getItem('spice-painel') || ''; } catch (e) {}
+
+  Object.entries(STATUS).forEach(([k, v]) => $('fStatus').insertAdjacentHTML('beforeend', `<option value="${k}">${v}</option>`));
+
+  async function api(method, body) {
+    const r = await fetch('/api/leads', {
+      method,
+      headers: { 'Content-Type': 'application/json', 'x-painel-senha': senha },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    const json = await r.json().catch(() => ({}));
+    if (!r.ok) { const e = new Error(json.error || 'Erro'); e.status = r.status; throw e; }
+    return json;
+  }
+
+  async function carregar() {
+    try {
+      leads = await api('GET');
+      try { sessionStorage.setItem('spice-painel', senha); } catch (e) {}
+      $('login').classList.add('hidden');
+      $('app').classList.remove('hidden');
+      preencherEventos();
+      render();
+    } catch (err) {
+      $('login').classList.remove('hidden');
+      $('app').classList.add('hidden');
+      $('loginErro').textContent = err.status === 401 ? 'Senha incorreta.' : err.message;
+    }
+  }
+
+  $('btnEntrar').addEventListener('click', () => { senha = $('senha').value; carregar(); });
+  $('senha').addEventListener('keydown', (e) => { if (e.key === 'Enter') { senha = $('senha').value; carregar(); } });
+  $('btnAtualizar').addEventListener('click', carregar);
+  ['busca', 'fEvento', 'fTemp', 'fStatus'].forEach((id) => $(id).addEventListener('input', render));
+
+  function preencherEventos() {
+    const atual = $('fEvento').value;
+    const eventos = [...new Set(leads.map((l) => l.lead.evento).filter(Boolean))];
+    $('fEvento').innerHTML = '<option value="">Todos os eventos</option>';
+    eventos.forEach((ev) => { const o = document.createElement('option'); o.value = ev; o.textContent = ev; $('fEvento').appendChild(o); });
+    $('fEvento').value = atual;
+  }
+
+  function filtrados() {
+    const q = $('busca').value.trim().toLowerCase();
+    const ev = $('fEvento').value, temp = $('fTemp').value, st = $('fStatus').value;
+    return leads.filter((l) => {
+      if (ev && l.lead.evento !== ev) return false;
+      if (st && l.status !== st) return false;
+      if (temp === 'quer' && !l.quer_conversar) return false;
+      if (temp && temp !== 'quer' && l.interno?.temperatura !== temp) return false;
+      if (q && ![l.lead.nome, l.lead.restaurante, l.lead.instagram].join(' ').toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }
+
+  const corNota = (n) => n >= 7 ? 'var(--verde)' : n >= 4.5 ? 'var(--laranja)' : 'var(--vermelho)';
+  const fmt = (n) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const data = (iso) => new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const zap = (n) => { let d = String(n).replace(/\D/g, ''); if (d.length <= 11) d = '55' + d; return d; };
+
+  function render() {
+    const lista = filtrados();
+    $('kTotal').textContent = lista.length;
+    $('kQuer').textContent = lista.filter((l) => l.quer_conversar).length;
+    $('kQuente').textContent = lista.filter((l) => l.interno?.temperatura === 'quente').length;
+    $('kMedia').textContent = lista.length ? fmt(lista.reduce((a, l) => a + l.diagnostico.nota_geral, 0) / lista.length) : '0';
+
+    const el = $('lista');
+    if (!lista.length) { el.innerHTML = '<div class="vazio">Nenhum lead por aqui ainda.</div>'; return; }
+    el.innerHTML = lista.map((l) => {
+      const d = l.diagnostico, i = l.interno || {}, ld = l.lead;
+      return `
+      <div class="lead ${abertos.has(l.id) ? 'open' : ''}" data-id="${esc(l.id)}">
+        <div class="lead-head">
+          <div class="nota" style="background:${corNota(d.nota_geral)}">${fmt(d.nota_geral)}</div>
+          <div class="lead-info">
+            <h3>${esc(ld.restaurante)} · @${esc(ld.instagram)}</h3>
+            <p>${esc(ld.nome)}${ld.cidade ? ' · ' + esc(ld.cidade) : ''}${ld.tipo ? ' · ' + esc(ld.tipo) : ''}</p>
+            <div class="tags">
+              ${l.quer_conversar ? '<span class="tag quer">Quer conversar</span>' : ''}
+              ${i.temperatura ? `<span class="tag ${esc(i.temperatura)}">${esc(i.temperatura)}</span>` : ''}
+              ${ld.evento ? `<span class="tag">${esc(ld.evento)}</span>` : ''}
+              <span class="tag">${ld.origem === 'equipe' ? 'Equipe' + (ld.responsavel ? ': ' + esc(ld.responsavel) : '') : 'QR code'}</span>
+            </div>
+          </div>
+          <div class="lead-side">
+            <div>${data(l.criado_em)}</div>
+            <select data-acao="status">${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${l.status === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
+          </div>
+        </div>
+        <div class="lead-body">
+          <div>
+            <h4>Contato</h4>
+            <ul class="contato">
+              <li><b>WhatsApp:</b> <a href="https://wa.me/${zap(ld.whatsapp)}" target="_blank" rel="noopener">${esc(ld.whatsapp)}</a></li>
+              <li><b>Instagram:</b> <a href="https://instagram.com/${encodeURIComponent(ld.instagram)}" target="_blank" rel="noopener">@${esc(ld.instagram)}</a></li>
+              ${ld.canais?.length ? `<li><b>Vende em:</b> ${esc(ld.canais.join(', '))}</li>` : ''}
+              ${ld.desafio ? `<li><b>Maior desafio:</b> ${esc(ld.desafio)}</li>` : ''}
+              ${d.dados_perfil?.seguidores ? `<li><b>Perfil:</b> ${esc(d.dados_perfil.seguidores)} seguidores, ${esc(d.dados_perfil.posts)} posts</li>` : ''}
+            </ul>
+            <h4>Pilares</h4>
+            <ul>${Object.entries(PILARES).map(([k, v]) => d.pilares[k] ? `<li><b>${v} ${d.pilares[k].nota}/10:</b> ${esc(d.pilares[k].comentario)}</li>` : '').join('')}</ul>
+            <h4>Insights entregues</h4>
+            <ul>${d.insights.map((x) => `<li><b>${esc(x.titulo)}:</b> ${esc(x.texto)}</li>`).join('')}</ul>
+            <h4>Melhorias entregues</h4>
+            <ul>${d.melhorias.map((x) => `<li><b>${esc(x.titulo)}:</b> ${esc(x.texto)}</li>`).join('')}</ul>
+          </div>
+          <div>
+            <div class="gancho">
+              <h4>Gancho para a call</h4>
+              <p>${esc(i.gancho_call)}</p>
+              <h4>Perguntas de descoberta</h4>
+              <ul>${(i.perguntas_call || []).map((p) => `<li>${esc(p)}</li>`).join('')}</ul>
+              <h4>Serviços que encaixam</h4>
+              <p>${esc((i.servicos_recomendados || []).join(', '))}</p>
+            </div>
+            <h4 style="margin-top:16px">Observações</h4>
+            <textarea data-acao="obs" placeholder="Anotações da equipe...">${esc(l.observacoes)}</textarea>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  $('lista').addEventListener('click', (e) => {
+    if (e.target.closest('select, textarea, a')) return;
+    const head = e.target.closest('.lead-head');
+    if (!head) return;
+    const card = head.parentElement;
+    const id = card.dataset.id;
+    abertos.has(id) ? abertos.delete(id) : abertos.add(id);
+    card.classList.toggle('open');
+  });
+
+  $('lista').addEventListener('change', async (e) => {
+    const card = e.target.closest('.lead');
+    if (!card) return;
+    const id = card.dataset.id;
+    const lead = leads.find((l) => l.id === id);
+    const patch = e.target.dataset.acao === 'status' ? { status: e.target.value } : e.target.dataset.acao === 'obs' ? { observacoes: e.target.value } : null;
+    if (!patch) return;
+    try { Object.assign(lead, await api('PATCH', { id, ...patch })); }
+    catch (err) { alert('Não foi possível salvar: ' + err.message); }
+  });
+
+  $('btnCsv').addEventListener('click', () => {
+    const cols = ['Data', 'Evento', 'Origem', 'Responsável', 'Nome', 'Restaurante', 'Instagram', 'WhatsApp', 'Cidade', 'Tipo', 'Canais', 'Desafio',
+      'Nota geral', 'Bio', 'Destaques', 'Conteúdo', 'Contexto', 'Temperatura', 'Quer conversar', 'Status', 'Gancho call', 'Serviços', 'Observações'];
+    const q = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+    const linhas = filtrados().map((l) => {
+      const ld = l.lead, d = l.diagnostico, i = l.interno || {};
+      return [data(l.criado_em), ld.evento, ld.origem, ld.responsavel, ld.nome, ld.restaurante, '@' + ld.instagram, ld.whatsapp, ld.cidade, ld.tipo,
+        (ld.canais || []).join(', '), ld.desafio, fmt(d.nota_geral), d.pilares.bio?.nota, d.pilares.destaques?.nota, d.pilares.conteudo?.nota,
+        d.pilares.contexto_negocio?.nota, i.temperatura, l.quer_conversar ? 'Sim' : 'Não', STATUS[l.status], i.gancho_call,
+        (i.servicos_recomendados || []).join(', '), l.observacoes].map(q).join(';');
+    });
+    const csv = '﻿' + [cols.map(q).join(';'), ...linhas].join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = `leads-spice-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+  });
+
+  if (senha) carregar();
+})();
+</script>
+</body>
+</html>
