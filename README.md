@@ -4,15 +4,16 @@ Sistema para fazer, na hora, um diagnóstico do Instagram de um restaurante, cap
 
 ## Como funciona
 
-1. **Formulário** (`/`): nome, restaurante, @, WhatsApp, cidade, tipo de negócio, onde vende, maior desafio e autorização de contato (LGPD).
+1. **Sobre o negócio** (`/`): restaurante, @, cidade, tipo de negócio, onde vende e maior desafio.
 2. **Prints**: de 1 a 3 prints do perfil (topo com bio e destaques, grade de posts). O navegador comprime as imagens antes de enviar.
-3. **Análise** (`/api/diagnostico`): o Claude (`claude-opus-5-5`) lê os prints e devolve:
+3. **Contato**: nome, WhatsApp e autorização de contato (LGPD). Fica por último de propósito: o lead já investiu tempo e só falta isso para liberar o resultado, então desiste menos.
+4. **Análise** (`/api/diagnostico`): o Claude (`claude-opus-5-5`) lê os prints e devolve:
    - nota de 0 a 10 em 4 pilares: **bio, destaques, conteúdo e contexto do negócio** (a nota geral é a média);
    - **3 insights** do perfil;
    - **3 melhorias** com impacto alto ou médio;
    - um bloco **interno**, que o lead não vê: temperatura do lead, serviços da Spice que encaixam, gancho para abrir a call e 3 perguntas de descoberta.
-4. **Resultado**: tela com a nota animada e um botão "Quero conversar com a Spice", que marca o lead como interessado e abre o WhatsApp da Spice com uma mensagem pronta.
-5. **Painel** (`/painel.html`, protegido por senha): lista de leads com filtros por evento, temperatura e status, funil (novo, contatado, call agendada, proposta, fechado, perdido), observações e exportação para planilha (CSV).
+5. **Resultado**: tela com a nota animada e um botão "Quero conversar com a Spice", que marca o lead como interessado e abre o WhatsApp da Spice com uma mensagem pronta.
+6. **Painel** (`/painel.html`, protegido por senha): lista de leads com filtros por evento, temperatura e status, funil (novo, contatado, call agendada, proposta, fechado, perdido), observações e exportação para planilha (CSV).
 
 ## Links para o evento
 

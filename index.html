@@ -177,15 +177,13 @@
     </div>
 
     <form class="card" id="formDados" novalidate>
-      <div class="step-label">Passo 1 de 2</div>
+      <div class="step-label">Passo 1 de 3</div>
       <h2>Sobre o seu negócio</h2>
 
-      <label class="field"><span>Seu nome</span><input type="text" name="nome" autocomplete="name" required></label>
       <label class="field"><span>Nome do restaurante</span><input type="text" name="restaurante" required></label>
       <label class="field"><span>Instagram do restaurante</span>
         <div class="prefix"><input type="text" name="instagram" autocapitalize="off" autocorrect="off" spellcheck="false" required></div>
       </label>
-      <label class="field"><span>WhatsApp</span><input type="tel" name="whatsapp" autocomplete="tel" placeholder="(11) 99999-9999" required></label>
       <label class="field"><span>Cidade <em>(opcional)</em></span><input type="text" name="cidade"></label>
 
       <div class="group">
@@ -229,11 +227,6 @@
         <label class="field"><span>Quem abordou <em>(equipe Spice)</em></span><input type="text" name="responsavel"></label>
       </div>
 
-      <label class="consent">
-        <input type="checkbox" name="consentimento">
-        <span>Aceito que a Spice Marketing use esses dados para enviar meu diagnóstico e entrar em contato comigo.</span>
-      </label>
-
       <div class="erro" id="erro1"></div>
       <button type="submit" class="btn">Continuar</button>
     </form>
@@ -242,14 +235,35 @@
   <!-- PASSO 2: PRINTS -->
   <section id="passo2" class="hidden">
     <div class="card">
-      <div class="step-label">Passo 2 de 2</div>
+      <div class="step-label">Passo 2 de 3</div>
       <h2>Prints do perfil</h2>
       <div class="dica">Abra o Instagram do restaurante e tire os prints. Quanto mais da grade aparecer, melhor a análise.</div>
       <div class="slots" id="slots"></div>
       <div class="erro" id="erro2"></div>
-      <button type="button" class="btn" id="btnAnalisar" disabled>Gerar meu diagnóstico</button>
+      <button type="button" class="btn" id="btnPrints" disabled>Continuar</button>
       <button type="button" class="btn sec" id="btnVoltar">Voltar</button>
     </div>
+  </section>
+
+  <!-- PASSO 3: CONTATO -->
+  <section id="passo3" class="hidden">
+    <form class="card" id="formContato" novalidate>
+      <div class="step-label">Último passo</div>
+      <h2>Seu diagnóstico está quase pronto</h2>
+      <div class="dica">Deixe seu contato para liberar o resultado. É por aqui que a Spice fala com você se quiser ajuda.</div>
+
+      <label class="field"><span>Seu nome</span><input type="text" name="nome" autocomplete="name" required></label>
+      <label class="field"><span>WhatsApp</span><input type="tel" name="whatsapp" autocomplete="tel" placeholder="(11) 99999-9999" required></label>
+
+      <label class="consent">
+        <input type="checkbox" name="consentimento">
+        <span>Aceito que a Spice Marketing use esses dados para enviar meu diagnóstico e entrar em contato comigo.</span>
+      </label>
+
+      <div class="erro" id="erro3"></div>
+      <button type="submit" class="btn">Ver meu diagnóstico</button>
+      <button type="button" class="btn sec" id="btnVoltar3">Voltar</button>
+    </form>
   </section>
 
   <!-- CARREGANDO -->
@@ -310,7 +324,7 @@
 
   const $ = (id) => document.getElementById(id);
   const show = (id) => {
-    ['passo1', 'passo2', 'carregando', 'resultado'].forEach((s) => $(s).classList.toggle('hidden', s !== id));
+    ['passo1', 'passo2', 'passo3', 'carregando', 'resultado'].forEach((s) => $(s).classList.toggle('hidden', s !== id));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -347,11 +361,9 @@
     const f = e.target;
     const v = (n) => (f.elements[n]?.value || '').trim();
     const erro = $('erro1');
-    const faltando = [['nome', 'seu nome'], ['restaurante', 'o nome do restaurante'], ['instagram', 'o Instagram'], ['whatsapp', 'o WhatsApp']]
+    const faltando = [['restaurante', 'o nome do restaurante'], ['instagram', 'o Instagram']]
       .filter(([n]) => !v(n)).map(([, l]) => l);
-    if (faltando.length) { erro.textContent = 'Falta preencher ' + faltando.join(', ') + '.'; erro.classList.add('on'); return; }
-    if (v('whatsapp').replace(/\D/g, '').length < 10) { erro.textContent = 'Confira o WhatsApp com DDD.'; erro.classList.add('on'); return; }
-    if (!f.elements.consentimento.checked) { erro.textContent = 'Marque a autorização de contato para continuar.'; erro.classList.add('on'); return; }
+    if (faltando.length) { erro.textContent = 'Falta preencher ' + faltando.join(' e ') + '.'; erro.classList.add('on'); return; }
     erro.classList.remove('on');
 
     if (modoEquipe && v('responsavel')) {
@@ -359,10 +371,9 @@
     }
 
     dados = {
-      nome: v('nome'), restaurante: v('restaurante'), instagram: v('instagram').replace(/^@+/, ''),
-      whatsapp: v('whatsapp'), cidade: v('cidade'),
+      restaurante: v('restaurante'), instagram: v('instagram').replace(/^@+/, ''), cidade: v('cidade'),
       tipo: chipValues('tipo')[0] || '', canais: chipValues('canais'), desafio: chipValues('desafio')[0] || '',
-      responsavel: v('responsavel'), evento, origem: modoEquipe ? 'equipe' : 'qrcode', consentimento: true
+      responsavel: v('responsavel'), evento, origem: modoEquipe ? 'equipe' : 'qrcode'
     };
     show('passo2');
   });
@@ -416,11 +427,14 @@
       }
       $('slots').appendChild(el);
     });
-    $('btnAnalisar').disabled = !imagens.some(Boolean);
+    $('btnPrints').disabled = !imagens.some(Boolean);
   }
   renderSlots();
 
   $('btnVoltar').addEventListener('click', () => show('passo1'));
+  $('btnPrints').addEventListener('click', () => { $('erro2').classList.remove('on'); show('passo3'); });
+  $('btnVoltar3').addEventListener('click', () => show('passo2'));
+  $('formContato').addEventListener('input', () => $('erro3').classList.remove('on'));
 
   const MSGS = ['Lendo a bio...', 'Olhando os destaques...', 'Avaliando a grade de posts...', 'Analisando o contexto do negócio...', 'Comparando com boas práticas de food service...', 'Montando seus insights...'];
   let loadingTimer = null;
@@ -433,9 +447,18 @@
   let leadId = null;
   let whatsappSpice = '';
 
-  $('btnAnalisar').addEventListener('click', async () => {
-    const erro = $('erro2');
+  $('formContato').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const v = (n) => (f.elements[n]?.value || '').trim();
+    const erro = $('erro3');
+    const faltando = [['nome', 'seu nome'], ['whatsapp', 'o WhatsApp']].filter(([n]) => !v(n)).map(([, l]) => l);
+    if (faltando.length) { erro.textContent = 'Falta preencher ' + faltando.join(' e ') + '.'; erro.classList.add('on'); return; }
+    if (v('whatsapp').replace(/\D/g, '').length < 10) { erro.textContent = 'Confira o WhatsApp com DDD.'; erro.classList.add('on'); return; }
+    if (!f.elements.consentimento.checked) { erro.textContent = 'Marque a autorização de contato para ver o diagnóstico.'; erro.classList.add('on'); return; }
     erro.classList.remove('on');
+    Object.assign(dados, { nome: v('nome'), whatsapp: v('whatsapp'), consentimento: true });
+
     show('carregando');
     startLoading();
     try {
@@ -445,16 +468,22 @@
         body: JSON.stringify({ ...dados, imagens: imagens.filter(Boolean) })
       });
       const json = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(json.error || 'Algo deu errado. Tente de novo.');
+      if (!r.ok) {
+        const err = new Error(json.error || 'Algo deu errado. Tente de novo.');
+        err.prints = r.status === 422;
+        throw err;
+      }
       leadId = json.id;
       whatsappSpice = json.whatsapp_spice || '';
       renderResultado(json.diagnostico);
       show('resultado');
       requestAnimationFrame(() => setTimeout(animar, 150));
     } catch (err) {
-      erro.textContent = err.message;
-      erro.classList.add('on');
-      show('passo2');
+      // Prints ilegíveis: volta para trocar as imagens; o resto, tenta de novo daqui
+      const alvo = err.prints ? $('erro2') : erro;
+      alvo.textContent = err.message;
+      alvo.classList.add('on');
+      show(err.prints ? 'passo2' : 'passo3');
     } finally {
       clearInterval(loadingTimer);
     }
@@ -546,6 +575,7 @@
   $('btnNovo').addEventListener('click', () => {
     const resp = document.querySelector('[name=responsavel]').value;
     $('formDados').reset();
+    $('formContato').reset();
     document.querySelector('[name=responsavel]').value = resp;
     document.querySelectorAll('.chip.on').forEach((c) => c.classList.remove('on'));
     imagens.fill(null);
